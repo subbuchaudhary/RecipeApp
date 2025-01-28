@@ -23,13 +23,47 @@ final class RecipeAppUITests: XCTestCase {
     }
 
     @MainActor
-    func testExample() throws {
+    func testRecipeAndFilterHappyPath() throws {
         // UI tests must launch the application that they test.
         let app = XCUIApplication()
         app.launch()
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        XCTAssertTrue(app.navigationBars.element(matching: .any, identifier: "Recipe App").waitForExistence(timeout: 10), "Recipe App navigation bar is not displayed")
+
+        // Verify cell element
+        let cell = app.cells.firstMatch
+        XCTAssertTrue(cell.waitForExistence(timeout: 5))
+
+        XCTAssertTrue(cell.images.element(matching: .image, identifier: "RecipeCell.Image").exists, "RecipeCell.Image is not displayed")
+        XCTAssertTrue(cell.staticTexts.element(matching: .staticText, identifier: "RecipeCell.RecipeName").exists, "RecipeCell.RecipeName is not displayed")
+        XCTAssertTrue(cell.staticTexts.element(matching: .staticText, identifier: "RecipeCell.CuisineName").exists, "RecipeCell.CuisineName is not displayed")
+
+        // Verify details page
+        cell.firstMatch.tap()
+
+        XCTAssertTrue(app.images.element(matching: .image, identifier: "Details.Image").exists, "Details.Image is not displayed")
+        XCTAssertTrue(app.staticTexts.element(matching: .staticText, identifier: "Details.Recipe").exists, "Details.Recipe is not displayed")
+        XCTAssertTrue(app.staticTexts.element(matching: .staticText, identifier: "Details.Cuisine").exists, "Details.Cuisine is not displayed")
+
+        let backButton = app.buttons.element(matching: NSPredicate(format: "label CONTAINS 'Recipe App'"))
+        backButton.firstMatch.tap()
+        XCTAssertTrue(app.navigationBars.element(matching: .any, identifier: "Recipe App").waitForExistence(timeout: 10), "Back button is not displayed")
+
+        // Verify Filter page
+        let filterButton = app.otherElements.element(matching: NSPredicate(format: "label CONTAINS 'Filter'"))
+        XCTAssertTrue(filterButton.exists, "Filter button is not displayed")
+        filterButton.tap()
+
+        XCTAssertTrue(app.navigationBars.element(matching: .any, identifier: "Select Cuisine").waitForExistence(timeout: 10), "Select Cuisine is not displayed")
+        let filterCell = app.cells.firstMatch
+        XCTAssertTrue(filterCell.waitForExistence(timeout: 5))
+        let closeButton = app.otherElements.element(matching: NSPredicate(format: "label CONTAINS 'Close'"))
+        closeButton.firstMatch.tap()
+
+        // Verify Home page
+        XCTAssertTrue(app.navigationBars.element(matching: .any, identifier: "Recipe App").waitForExistence(timeout: 10), "Recipe App is not displayed")
     }
+
 
     @MainActor
     func testLaunchPerformance() throws {

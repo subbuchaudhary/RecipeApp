@@ -11,7 +11,8 @@ struct RecipeDataModel: Codable, Hashable {
     var recipes: [Recipe]
 }
 
-struct Recipe: Codable, Hashable {
+struct Recipe: Codable, Hashable, Identifiable {
+    var id: String { UUID().uuidString }
     var cuisine: String
     var name: String
     var photoUrlStringLarge: String?
