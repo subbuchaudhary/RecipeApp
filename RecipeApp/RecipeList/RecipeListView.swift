@@ -45,7 +45,7 @@ struct RecipeListView: View {
                     }
             }
             .onAppear {
-                Task {
+                viewModel.loadRecipes()
                     await viewModel.loadRecipes()
                 }
             }

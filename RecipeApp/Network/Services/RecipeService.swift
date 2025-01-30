@@ -1,5 +1,5 @@
 //
-//  APIManager+Recipe.swift
+//  RecipeService.swift
 //  RecipeApp
 //
 //  Created by Subba Nelakudhiti on 1/27/25.
@@ -11,8 +11,8 @@ protocol RecipeProtocol {
     func fetchRecipes() async throws -> RecipeDataModel
 }
 
-extension APIManager: RecipeProtocol {
+struct RecipeService: APIManager, RecipeProtocol {
     func fetchRecipes() async throws -> RecipeDataModel {
-        return try await fetchData(from: "https://d3jbb8n5wk0qxi.cloudfront.net/recipes.json")
+        return try await fetchData(from: RecipeEndpoint.recipes, responseModel: RecipeDataModel.self)
     }
 }

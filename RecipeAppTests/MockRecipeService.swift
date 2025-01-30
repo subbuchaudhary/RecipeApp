@@ -8,10 +8,11 @@
 import XCTest
 @testable import RecipeApp
 
-final class MockNetworkManager: RecipeProtocol {
+final class MockRecipeService: RecipeProtocol {
 
     enum Input {
-        case failure, success
+        case failure
+        case success
     }
     
     var input: Input
