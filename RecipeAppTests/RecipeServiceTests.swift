@@ -6,30 +6,60 @@
 //
 
 import XCTest
+@testable import RecipeApp
 
 final class RecipeServiceTests: XCTestCase {
+    var sut: RecipeProtocol!
+    var mockServices: MockRecipeService!
+    var recipes: [Recipe]!
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    override func setUp() {
+        super.setUp()
+        mockServices = MockRecipeService()
+        sut = mockServices
+        recipes = []
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    override func tearDown() {
+        mockServices = nil
+        sut = nil
+        recipes = nil
+        super.tearDown()
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
+    func testFetchRecipesMock() async throws {
+        // Given
+        mockServices.input = .success
+
+        // When
+        let result = try await sut.fetchRecipes()
+        recipes = result.recipes
+        XCTAssertNotNil(recipes)
     }
 
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    func testFetchRecipesFailure() async throws {
+        // Given
+        mockServices.input = .failure
+        var thrownError: Error?
+        let errorHandler = { thrownError = $0 }
+        let expectation = expectation(description: "API call should throw invalid URL message")
+
+        // When
+        Task {
+            do {
+                let result = try await sut.fetchRecipes()
+                recipes = result.recipes
+            } catch let error as APIError {
+                errorHandler(error)
+            }
+            expectation.fulfill()
         }
+
+        await fulfillment(of: [expectation])
+
+        // Then
+        XCTAssertEqual(thrownError as! APIError, APIError.invalidURL)
+        XCTAssertTrue(recipes.isEmpty)
     }
 
 }

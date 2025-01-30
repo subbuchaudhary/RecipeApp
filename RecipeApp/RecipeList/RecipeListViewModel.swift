@@ -24,27 +24,25 @@ final class RecipeListViewModel: ObservableObject {
     let noRecipesMessage: String = "No recipes are available"
 
     private(set) var state: FetchableState = .fetching
-    private let apiManager: RecipeProtocol
+    private let recipeService: RecipeProtocol
 
-    init(apiManager: RecipeProtocol = RecipeService()) {
-        self.apiManager = apiManager
+    init(recipeService: RecipeProtocol) {
+        self.recipeService = recipeService
     }
 
     @MainActor
-    func loadRecipes() {
+    func loadRecipes() async {
         state = .fetching
-        Task {
-            do {
-                let dataModel = try await apiManager.fetchRecipes()
-                recipes = dataModel.recipes
-                filteredRecipes = getFilteredRecipes()
-                state = .idle
-                shouldShowAlert = false
-            } catch {
-                self.errorMessage = error.localizedDescription
-                state = .idle
-                shouldShowAlert = true
-            }
+        do {
+            let dataModel = try await recipeService.fetchRecipes()
+            recipes = dataModel.recipes
+            filteredRecipes = getFilteredRecipes()
+            state = .idle
+            shouldShowAlert = false
+        } catch {
+            self.errorMessage = error.localizedDescription
+            state = .idle
+            shouldShowAlert = true
         }
     }
 

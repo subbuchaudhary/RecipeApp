@@ -9,6 +9,20 @@ import XCTest
 @testable import RecipeApp
 
 final class RecipeListViewModelTests: XCTestCase {
+    var sut: RecipeListViewModel!
+    var mockServices: MockRecipeService!
+
+    override func setUp() {
+        super.setUp()
+        mockServices = MockRecipeService()
+        sut = RecipeListViewModel(recipeService: mockServices)
+    }
+
+    override func tearDown() {
+        mockServices = nil
+        sut = nil
+        super.tearDown()
+    }
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -19,55 +33,55 @@ final class RecipeListViewModelTests: XCTestCase {
     }
 
     @MainActor func testFetchRecipes() async {
-        let viewModel = RecipeListViewModel(apiManager: MockNetworkManager(input: .success))
-        XCTAssertTrue(viewModel.recipes.isEmpty)
-        XCTAssert(viewModel.errorMessage == "")
-        XCTAssert(viewModel.state == .idle)
+        mockServices.input = .success
+        XCTAssertTrue(sut.recipes.isEmpty)
+        XCTAssertTrue(sut.errorMessage.isEmpty)
+        XCTAssertEqual(sut.state, .fetching)
 
-        await viewModel.loadRecipes()
+        await sut.loadRecipes()
 
-        XCTAssertFalse(viewModel.recipes.isEmpty)
-        XCTAssertEqual(viewModel.recipes.count, 1)
-        XCTAssertEqual(viewModel.cuisines.count, 2)
-        XCTAssertEqual(viewModel.filteredRecipes.count, 1)
-        XCTAssert(viewModel.errorMessage == "")
-        XCTAssert(viewModel.state == .idle)
+        XCTAssertFalse(sut.recipes.isEmpty)
+        XCTAssertEqual(sut.recipes.count, 1)
+        XCTAssertEqual(sut.cuisines.count, 2)
+        XCTAssertEqual(sut.filteredRecipes.count, 1)
+        XCTAssertTrue(sut.errorMessage.isEmpty)
+        XCTAssertEqual(sut.state, .idle)
     }
 
     @MainActor func testFetchRecipesFailure() async {
-        let viewModel = RecipeListViewModel(apiManager: MockNetworkManager(input: .failure))
-        XCTAssertTrue(viewModel.recipes.isEmpty)
-        XCTAssert(viewModel.errorMessage == "")
-        XCTAssert(viewModel.state == .idle)
+        mockServices.input = .failure
+        XCTAssertTrue(sut.recipes.isEmpty)
+        XCTAssertTrue(sut.errorMessage.isEmpty)
+        XCTAssertEqual(sut.state, .fetching)
 
-        await viewModel.loadRecipes()
+        await sut.loadRecipes()
 
-        XCTAssertTrue(viewModel.recipes.isEmpty)
-        XCTAssertEqual(viewModel.recipes.count, 0)
-        XCTAssertEqual(viewModel.cuisines.count, 1)
-        XCTAssertEqual(viewModel.filteredRecipes.count, 0)
-        XCTAssert(viewModel.errorMessage != "")
-        XCTAssert(viewModel.state == .idle)
+        XCTAssertTrue(sut.recipes.isEmpty)
+        XCTAssertEqual(sut.recipes.count, 0)
+        XCTAssertEqual(sut.cuisines.count, 1)
+        XCTAssertEqual(sut.filteredRecipes.count, 0)
+        XCTAssertNotEqual(sut.errorMessage, "")
+        XCTAssertEqual(sut.state, .idle)
     }
 
     @MainActor func testFilterdRecipe() async {
-        let viewModel = RecipeListViewModel(apiManager: MockNetworkManager(input: .success))
-        await viewModel.loadRecipes()
+        mockServices.input = .success
+        await sut.loadRecipes()
 
-        XCTAssertFalse(viewModel.recipes.isEmpty)
-        XCTAssertEqual(viewModel.recipes.count, 1)
-        XCTAssertEqual(viewModel.filteredRecipes.count, 1)
+        XCTAssertFalse(sut.recipes.isEmpty)
+        XCTAssertEqual(sut.recipes.count, 1)
+        XCTAssertEqual(sut.filteredRecipes.count, 1)
 
-        viewModel.selectedCuisine = "Italian"
-        viewModel.filteredRecipes = viewModel.getFilteredRecipes()
-        XCTAssertEqual(viewModel.filteredRecipes.count, 0)
+        sut.selectedCuisine = "Italian"
+        sut.filteredRecipes = sut.getFilteredRecipes()
+        XCTAssertEqual(sut.filteredRecipes.count, 0)
 
-        viewModel.selectedCuisine = "All"
-        viewModel.filteredRecipes = viewModel.getFilteredRecipes()
-        XCTAssertEqual(viewModel.filteredRecipes.count, 1)
+        sut.selectedCuisine = "All"
+        sut.filteredRecipes = sut.getFilteredRecipes()
+        XCTAssertEqual(sut.filteredRecipes.count, 1)
 
-        viewModel.selectedCuisine = "Malaysian"
-        viewModel.filteredRecipes = viewModel.getFilteredRecipes()
-        XCTAssertEqual(viewModel.filteredRecipes.count, 1)
+        sut.selectedCuisine = "Malaysian"
+        sut.filteredRecipes = sut.getFilteredRecipes()
+        XCTAssertEqual(sut.filteredRecipes.count, 1)
     }
 }

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RecipeListView: View {
-    @StateObject var viewModel: RecipeListViewModel = RecipeListViewModel()
+    @StateObject var viewModel: RecipeListViewModel = RecipeListViewModel(recipeService: RecipeService())
     @State private var isShowingPopup: Bool = false
 
     var body: some View {
@@ -45,7 +45,7 @@ struct RecipeListView: View {
                     }
             }
             .onAppear {
-                viewModel.loadRecipes()
+                Task {
                     await viewModel.loadRecipes()
                 }
             }
