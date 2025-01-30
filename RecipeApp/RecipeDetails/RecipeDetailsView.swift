@@ -12,13 +12,9 @@ struct RecipeDetailsView: View {
 
     var body: some View {
         VStack {
-            AsyncImage(url: recipe.photoUrlSmall) {
-                $0.resizable()
-                    .aspectRatio(contentMode: .fit)
-            } placeholder: {
-                Image(systemName: "photo")
-            }
-            .frame(width: 210, height: 210)
+            AsyncImageView(imageUrl: recipe.photoUrlLarge)
+            .frame(width: 250, height: 250)
+            .cornerRadius(8)
             .accessibilityIdentifier("Details.Image")
 
             Text(recipe.name)

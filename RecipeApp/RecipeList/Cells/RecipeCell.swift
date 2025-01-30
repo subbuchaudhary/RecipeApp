@@ -12,14 +12,10 @@ struct RecipeCell: View {
 
     var body: some View {
         HStack {
-            AsyncImage(url: recipe.photoUrlSmall, scale: 1.0) {
-                $0.resizable()
-                    .aspectRatio(contentMode: .fit)
-            } placeholder: {
-                Image(systemName: "photo")
-            }
+            AsyncImageView(imageUrl: recipe.photoUrlSmall)
             .frame(width: 60, height: 60)
-            .cornerRadius(8)                            .accessibilityIdentifier("RecipeCell.Image")
+            .cornerRadius(8)
+            .accessibilityIdentifier("RecipeCell.Image")
 
 
             VStack(alignment: .leading) {
